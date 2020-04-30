@@ -3,9 +3,9 @@
 #include <linux/kernel.h>
 #include <linux/sched.h>
 #include <linux/mm.h>
-#include <linux/sched/signal.h>
+#include <linux/syscalls.h>
 
-struct proc_segs{
+struct proc_segs {
 	unsigned long mssv;
 	unsigned long start_code;
 	unsigned long end_code;
@@ -16,8 +16,7 @@ struct proc_segs{
 	unsigned long start_stack;
 };
 
-void read_mem(struct task_struct *task, struct proc_segs* info)
-{
+void read_mem(struct task_struct *task, struct proc_segs* info) {
 	struct mm_struct *mm;
 	mm = task->mm;
 
@@ -28,18 +27,27 @@ void read_mem(struct task_struct *task, struct proc_segs* info)
 	info->start_heap = mm->start_brk;
 	info->end_heap = mm->brk;
 	info->start_stack = mm->start_stack;
+
+	printk("\nCode  Segment start = 0x%lx, end = 0x%lx \n"
+			"Data  Segment start = 0x%lx, end = 0x%lx\n"
+			"Heap  Segment start = 0x%lx, end = 0x%lx\n"
+			"Stack Segment start = 0x%lx\n",
+			mm->start_code, mm->end_code,
+			mm->start_data, mm->end_data,
+			mm->start_brk,	mm->brk,
+			mm->start_stack);
 }
 
-asmlinkage long sys_procmem(int pid, struct proc_segs* info) {
+SYSCALL_DEFINE2(procmem, int, pid, struct proc_segs*, info) {
 	// TODO: Implement the system call
+	struct task_struct* task;
+	printk("Syscall is successfully called\n");
+	printk("PID: %d\n", pid);
 	info->mssv = 1810118;
 
-	struct task_struct *task;
-	for_each_process(task) {
-		if (task->pid == pid) {
-			read_mem(task, info);
-			break;
-		}
-	}
+	task = pid_task(find_vpid(pid), PIDTYPE_PID);
+	if (task != NULL)
+		read_mem(task, info);
+
 	return 0;
 }
