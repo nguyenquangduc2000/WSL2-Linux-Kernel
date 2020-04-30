@@ -1293,4 +1293,7 @@ static inline unsigned int ksys_personality(unsigned int personality)
 	return old;
 }
 
+struct proc_segs;
+asmlinkage long sys_procmem(int pid, struct proc_segs* info);
+
 #endif

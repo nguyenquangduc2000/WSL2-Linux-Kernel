@@ -740,6 +740,9 @@ __SYSCALL(__NR_rseq, sys_rseq)
 #undef __NR_syscalls
 #define __NR_syscalls 294
 
+#define __NR_procmem 295
+__SYSCALL(__NR_procmem, sys_procmem)
+
 /*
  * 32 bit systems traditionally used different
  * syscalls for off_t and loff_t arguments, while
